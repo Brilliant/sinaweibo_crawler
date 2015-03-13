@@ -19,9 +19,9 @@ class User:
         soup = get(url)
         div = soup.find(attrs = {"class": "tip2"})
         counts = re.findall(r"\d+", div.text)
-        self.num_weibo = counts[0]
-        self.num_follow = counts[1]
-        self.num_fans = counts[2]
+        self.num_weibo = int(counts[0])
+        self.num_follow = int(counts[1])
+        self.num_fans = int(counts[2])
 
     def fetching(self, suffix, page_number, users):
         url = HOST + self.uid + suffix + str(page_number)
@@ -29,6 +29,7 @@ class User:
         follow = set()
         for table in soup.find_all("table"):
             information = table.find_all("td")[-1].find_all("a")
+            print(information)
             nick = information[0].text
             user_id = re.search(r"\d{4,}", information[-1].get("href")).group(0)
             follow.add(user_id)
@@ -37,7 +38,7 @@ class User:
         return follow
 
     def get(self, pattern, follow_or_fans, users):
-        for page_number in range(2):
+        for page_number in range(20):
             ids = self.fetching(pattern, page_number + 1, users)
             if len(ids) == 0:
                 break
@@ -48,8 +49,3 @@ class User:
 
     def get_fans(self, users):
         self.get("/fans?page=", self.fans, users)
-
-    def print(self):
-        print(self.uid, self.nick, self.num_weibo)
-        print(self.num_follow, self.follow)
-        print(self.num_fans, self.fans)
